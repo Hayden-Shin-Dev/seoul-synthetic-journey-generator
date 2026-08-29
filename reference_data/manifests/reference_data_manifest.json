@@ -1,0 +1,27 @@
+{
+  "dataset_name": "seoul_network_reference_snapshot",
+  "source": "OpenStreetMap contributors via Overpass API",
+  "source_url": "https://overpass-api.de/api/interpreter",
+  "provider": "OpenStreetMap Foundation and Seoul Metropolitan Government public data portals",
+  "downloaded_at": "2026-08-29T16:12:18.731047+00:00",
+  "data_version": "OSM snapshot at preparation time",
+  "license": "ODbL 1.0 for OSM-derived data; Seoul public data is marked Public Nuri Type 1 at source",
+  "coordinate_system": "WGS84 / EPSG:4326",
+  "files": [
+    "processed/seoul_network.json",
+    "raw/seoul_subway_stations_osm.json",
+    "raw/seoul_bus_stops_osm.json"
+  ],
+  "important_columns": [
+    "name",
+    "lat",
+    "lon",
+    "railway",
+    "highway"
+  ],
+  "usage": "Station geometry, bus stop geometry, line-order anchors and reproducible surface corridor sampling",
+  "limitations": "The compact bus route sequence is a corridor sample anchored to public route identifiers. Import the current Seoul bus route file for production route geometry.",
+  "seoul_bus_route_source": "https://data.seoul.go.kr/dataList/OA-1095/S/1/datasetView.do",
+  "seoul_bus_stop_source": "https://data.seoul.go.kr/dataList/OA-15067/S/1/datasetView.do",
+  "seoul_metro_source": "https://data.seoul.go.kr/dataList/OA-22493/L/1/datasetView.do"
+}
