@@ -14,6 +14,7 @@ from .models import Journey, Segment
 from .mobility import generate_segment_points
 from .reference import ReferenceNetwork
 from .routing import Router
+from .visualization import write_visualization
 
 PATTERNS = [
     ("walk", "rail", "walk"),
@@ -66,6 +67,7 @@ class DatasetGenerator:
         segment_mode_counts: Counter[str] = Counter()
         hard_counts: Counter[str] = Counter()
         noise_counts: Counter[str] = Counter()
+        samples: dict[str, tuple[Journey, list[dict]]] = {}
         total_events = 0
         trip_number = 1
         for category, count in counts.items():
@@ -76,6 +78,9 @@ class DatasetGenerator:
                 hard_case = self._hard_case_for(category, offset, hard_case_count)
                 journey = self.generate_journey(category, trip_number, rng, hard_case)
                 events = observe(journey.true_points, journey.trip_id, journey.device_id, self.noise_profiles[journey.noise_profile], rng)
+                samples.setdefault(category, (journey, events))
+                if journey.hard_case_type:
+                    samples.setdefault(f"hard:{journey.hard_case_type}", (journey, events))
                 self._write_gps(output_dir / "gps" / f"{journey.trip_id}.csv", events)
                 self._write_ground_truth(output_dir / "ground_truth" / f"{journey.trip_id}.json", journey)
                 manifest_rows.append(self._manifest_row(journey))
@@ -104,6 +109,8 @@ class DatasetGenerator:
             "config_hash": config_hash(self.config),
         }
         (output_dir / "manifests" / "dataset_manifest.json").write_text(json.dumps(dataset_manifest, indent=2), encoding="utf-8")
+        if samples:
+            write_visualization(output_dir, samples)
         return dataset_manifest
 
     def generate_journey(self, category: str, number: int, rng: random.Random, hard_case: tuple[str, str, str] | None = None) -> Journey:
@@ -197,4 +204,3 @@ def _join_route(previous_end: list[float], route: list[list[float]]) -> list[lis
     target = route[0]
     middle = [(previous_end[0] + target[0]) / 2, (previous_end[1] + target[1]) / 2]
     return [previous_end, [middle[0] + 0.0012, middle[1] - 0.0012], [middle[0] - 0.0012, middle[1] + 0.0012], target, *route[1:]]
-
