@@ -3,7 +3,7 @@
   "source": "OpenStreetMap contributors via Overpass API",
   "source_url": "https://overpass-api.de/api/interpreter",
   "provider": "OpenStreetMap Foundation and Seoul Metropolitan Government public data portals",
-  "downloaded_at": "2026-08-29T16:12:18.731047+00:00",
+  "downloaded_at": "2026-08-29T16:13:54.417916+00:00",
   "data_version": "OSM snapshot at preparation time",
   "license": "ODbL 1.0 for OSM-derived data; Seoul public data is marked Public Nuri Type 1 at source",
   "coordinate_system": "WGS84 / EPSG:4326",

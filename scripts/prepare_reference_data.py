@@ -54,6 +54,21 @@ BUS_ROUTE_ANCHORS = {
     "7016": ["\uc218\uc0c9\uad50", "\ud64d\ub300\uc785\uad6c", "\uacf5\ub355", "\uc11c\uc6b8\uc5ed"],
 }
 
+SURFACE_PAIRS = [
+    ("\uc11c\uc6b8\uc5ed", "\ud64d\ub300\uc785\uad6c"),
+    ("\uc2dc\uccad", "\uac15\ub0a8"),
+    ("\uac15\ub0a8", "\uc7a0\uc2e4"),
+    ("\ud569\uc815", "\uc5ec\uc758\ub3c4"),
+    ("\uc5ec\uc758\ub3c4", "\uace0\uc18d\ud130\ubbf8\ub110"),
+    ("\ucc3d\ub3d9", "\uccad\ub7c9\ub9ac"),
+    ("\uc5f0\uc2e0\ub0b4", "\uc2dc\uccad"),
+    ("\uae40\ud3ec\uacf5\ud56d", "\uc5ec\uc758\ub3c4"),
+    ("\uc655\uc2ed\ub9ac", "\uc555\uad6c\uc815"),
+    ("\uacf5\ub355", "\ub9c8\uace1\ub098\ub8e8"),
+    ("\uc131\uc218", "\uac74\ub300\uc785\uad6c"),
+    ("\uc0ac\ub2f9", "\uace0\uc18d\ud130\ubbf8\ub110"),
+]
+
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Download and prepare public Seoul reference snapshots")
@@ -77,12 +92,14 @@ def main() -> None:
         selected_stations[line_id] = [_station_record(name, station_index) for name in names]
     hubs = {record["name"]: record for values in selected_stations.values() for record in values}
     bus_routes = [_bus_route_record(route_id, anchors, hubs, stops) for route_id, anchors in BUS_ROUTE_ANCHORS.items()]
+    surface_corridors = _surface_corridors(hubs)
     network = {
         "coordinate_system": "WGS84",
         "source_snapshot": "OpenStreetMap Overpass snapshot",
         "stations_by_line": selected_stations,
         "bus_routes": bus_routes,
         "surface_hubs": list(hubs.values()),
+        "surface_corridors": surface_corridors,
     }
     output_path = PROCESSED / "seoul_network.json"
     output_path.write_text(json.dumps(network, ensure_ascii=False, indent=2), encoding="utf-8")
@@ -159,6 +176,26 @@ def _bus_route_record(route_id: str, anchors: list[str], hubs: dict[str, dict], 
         stop = _nearest_stop(point, stops)
         selected.append({"sequence": index, "osm_id": stop["id"], "name": stop.get("tags", {}).get("name", f"stop_{index}"), "lat": stop["lat"], "lon": stop["lon"]})
     return {"route_id": route_id, "route_name": f"Seoul city bus {route_id}", "stops": selected, "source_note": "public route identifier with OSM stop geometry corridor sample"}
+
+
+def _surface_corridors(hubs: dict[str, dict]) -> list[dict]:
+    corridors = []
+    for origin_name, destination_name in SURFACE_PAIRS:
+        if origin_name not in hubs or destination_name not in hubs:
+            continue
+        origin, destination = hubs[origin_name], hubs[destination_name]
+        lon_lat = f"{origin['lon']},{origin['lat']};{destination['lon']},{destination['lat']}"
+        url = f"https://router.project-osrm.org/route/v1/driving/{lon_lat}?overview=full&geometries=geojson&steps=false"
+        request = urllib.request.Request(url, headers={"User-Agent": "SeoulSyntheticJourneyGenerator/0.1"})
+        try:
+            with urllib.request.urlopen(request, timeout=45) as response:
+                payload = json.loads(response.read().decode("utf-8"))
+            route = payload["routes"][0]
+            coordinates = [[lat, lon] for lon, lat in route["geometry"]["coordinates"]]
+            corridors.append({"corridor_id": f"{origin_name}-{destination_name}", "origin": origin_name, "destination": destination_name, "distance_m": route["distance"], "geometry": coordinates, "source": "OSRM route geometry derived from OpenStreetMap"})
+        except (OSError, KeyError, IndexError, json.JSONDecodeError):
+            continue
+    return corridors
 
 
 def _nearest_stop(point: dict, stops: list[dict]) -> dict:
