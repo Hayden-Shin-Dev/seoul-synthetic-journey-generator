@@ -7,7 +7,6 @@ build/
 *.egg-info/
 reference_data/raw/*
 !reference_data/raw/.gitkeep
-output/dataset_v*/
-output/evaluation_dataset_v*/
+output/*
+!output/.gitkeep
 reports/*.html
-
