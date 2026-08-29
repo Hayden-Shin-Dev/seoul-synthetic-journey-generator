@@ -2,6 +2,12 @@
 
 This is an independent generator for a synthetic labelled GPS evaluation dataset based on Seoul geography and public transport reference data.
 
+This generator is being developed independently for a platform that is also under independent development.
+
+Developer: Hayden Shin
+
+Contact: min.developer@gmail.com
+
 It does not read or tune against an external mobility classifier. It creates the journey first, keeps Ground Truth in separate files, applies sensor noise, validates the result, and freezes the dataset as a versioned artifact.
 
 This is not real user GPS, iPhone collection data, or a record of Seoul residents' movements. The correct description is a synthetic labelled GPS evaluation dataset generated from Seoul transport and geographic reference data.
