@@ -1,0 +1,34 @@
+time_profiles:
+  commute_morning: {start_hour: 7, end_hour: 9, speed_factor: 0.82}
+  daytime: {start_hour: 10, end_hour: 16, speed_factor: 1.0}
+  commute_evening: {start_hour: 17, end_hour: 20, speed_factor: 0.78}
+  evening: {start_hour: 20, end_hour: 23, speed_factor: 0.92}
+  weekend: {start_hour: 11, end_hour: 18, speed_factor: 1.05}
+
+hard_cases:
+  car_vs_bike:
+    - congested_car
+    - fast_bike
+    - parallel_road_and_bikeway
+  car_vs_bus:
+    - stop_like_car
+    - slow_bus
+    - long_stop_spacing
+  walk_vs_bike:
+    - slow_bike
+    - fast_walk
+    - walking_bike
+  transit_false_positive:
+    - car_near_station
+    - walk_near_station
+    - parallel_rail_road
+    - parallel_rail_bus
+    - car_past_bus_stops
+    - car_waiting_near_stop
+  transit_sequence:
+    - station_proximity_only
+    - two_station_proximity
+    - correct_line_sequence
+    - transfer_area_no_transfer
+    - real_transfer
+

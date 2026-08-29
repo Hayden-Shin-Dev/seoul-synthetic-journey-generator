@@ -1,0 +1,21 @@
+generator_version: "0.1.0"
+dataset_version: "dataset_v1"
+seed: 2026
+sampling_interval_seconds: 5
+timezone: "Asia/Seoul"
+start_date: "2026-03-01"
+journey_counts:
+  walk: 100
+  bike: 100
+  car: 100
+  bus: 100
+  rail: 100
+  multimodal: 200
+  poc_walk: 2
+  poc_bike: 2
+  poc_car: 2
+  poc_bus: 2
+  poc_rail: 2
+  poc_multimodal: 3
+  poc_hard_case: 5
+

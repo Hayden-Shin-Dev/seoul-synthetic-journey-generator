@@ -1,0 +1,13 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+dist/
+build/
+*.egg-info/
+reference_data/raw/*
+!reference_data/raw/.gitkeep
+output/dataset_v*/
+output/evaluation_dataset_v*/
+reports/*.html
+
