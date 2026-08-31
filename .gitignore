@@ -7,6 +7,16 @@ build/
 *.egg-info/
 reference_data/raw/*
 !reference_data/raw/.gitkeep
+reference_data/v2/raw/*
+!reference_data/v2/raw/.gitkeep
+reference_data/v2/graphs/*
+!reference_data/v2/graphs/.gitkeep
+reference_data/v3/raw/*
+!reference_data/v3/raw/.gitkeep
+reference_data/v3/graphs/*
+!reference_data/v3/graphs/.gitkeep
 output/*
 !output/.gitkeep
 reports/*.html
+reports/dataset_v3_independent_audit/point_independent_validation.csv
+reports/dataset_v3_independent_audit/physical_independent_validation.csv

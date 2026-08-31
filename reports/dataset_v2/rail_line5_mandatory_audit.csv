@@ -1,0 +1,6 @@
+test_id,boarding_station,alighting_station,station_sequence,station_count,geometry_points,direction_pair_consistent,rail_geometry_present,status
+line5_od_01,상일동,강동,상일동 > 고덕 > 명일 > 굽은다리 > 길동 > 강동,6,404,PASS,PASS,PASS
+line5_od_02,명일,마장,명일 > 굽은다리 > 길동 > 강동 > 천호 > 광나루 > 아차산 > 군자 > 장한평 > 답십리 > 마장,11,404,PASS,PASS,PASS
+line5_od_03,강동,광화문,강동 > 천호 > 광나루 > 아차산 > 군자 > 장한평 > 답십리 > 마장 > 왕십리 > 행당 > 신금호 > 청구 > 동대문역사문화공원 > 을지로4가 > 종로3가 > 광화문,16,404,PASS,PASS,PASS
+line5_od_04,장한평,영등포구청,장한평 > 답십리 > 마장 > 왕십리 > 행당 > 신금호 > 청구 > 동대문역사문화공원 > 을지로4가 > 종로3가 > 광화문 > 서대문 > 충정로 > 애오개 > 공덕 > 마포 > 여의나루 > 여의도 > 신길 > 영등포시장 > 영등포구청,21,404,PASS,PASS,PASS
+line5_od_05,광화문,방화,광화문 > 서대문 > 충정로 > 애오개 > 공덕 > 마포 > 여의나루 > 여의도 > 신길 > 영등포시장 > 영등포구청 > 양평 > 오목교 > 목동 > 신정 > 까치산 > 화곡 > 우장산 > 발산 > 마곡 > 송정 > 김포공항 > 개화산 > 방화,24,404,PASS,PASS,PASS

@@ -1,0 +1,14 @@
+{
+  "status": "PASS",
+  "journey_count": 700,
+  "point_count": 370650,
+  "check_count": 5605,
+  "failed_checks": 0,
+  "mutation_count": 10,
+  "mutation_missed": 0,
+  "mutation_detection_rate": 1.0,
+  "package": "C:\\Users\\user\\Desktop\\seoul-synthetic-journey-generator\\output\\evaluation_dataset_v3",
+  "frozen_package_hash": "c529a51f97d9b73a2a03c9be769bd6c3673d9f5c9ffbd14c3cb35f18ebe4de4d",
+  "frozen_package_file_hash_digest": "f6ce2c552569fdd6dd4a139a22b837da4092ece78961c7bd9be61ff8163e288c",
+  "reference_manifest_hash": "91b790e66e9b2bdf652c95544b632cb603e7198c87507befab999d2e887f5356"
+}

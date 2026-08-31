@@ -1,0 +1,18 @@
+dataset_version: evaluation_dataset_v2
+generator_version: 2.0.0
+prototype_seed: 22026
+pilot_seed: 32026
+full_seed: 42026
+sampling_interval_seconds: [4.8, 6.8]
+coordinate_system: EPSG:4326
+reference_manifest: reference_data/v2/reference_data_manifest.json
+counts:
+  walk: 120
+  bike: 110
+  car: 110
+  bus: 100
+  rail: 120
+  multimodal: 140
+rail_line5_mandatory_prototype: 5
+no_fallback_geometry: true
+no_cross_mode_graph_reuse: true

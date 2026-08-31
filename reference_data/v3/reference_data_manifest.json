@@ -1,0 +1,84 @@
+{
+  "dataset_version": "reference_v3",
+  "created_at": "2026-08-31T07:46:18.924746+00:00",
+  "api_key_required": false,
+  "osm_attribution": "OpenStreetMap contributors, ODbL 1.0",
+  "sources": {
+    "regional_osm_pbf": {
+      "local_filename": "reference_data/v3/raw/south-korea-latest.osm.pbf",
+      "url": "https://download.geofabrik.de/asia/south-korea-latest.osm.pbf",
+      "provider": "Geofabrik",
+      "license": "ODbL 1.0",
+      "byte_size": 286284311,
+      "sha256": "043731b1d9e72eb28a6b4d6e9f558860f6cf98d511c05204e534bff44ce2e29c",
+      "coordinate_system": "EPSG:4326",
+      "note": "Regional extract selected because Seoul-only coverage missed official metropolitan bus stops"
+    },
+    "official_bus_route_stops": {
+      "local_filename": "reference_data/v2/raw/seoul_bus_route_stops_20260804.xlsx",
+      "url": "https://data.seoul.go.kr/dataList/OA-1095/S/1/datasetView.do",
+      "provider": "Seoul Open Data",
+      "license": "Public Nuri Type 1",
+      "byte_size": 3251800,
+      "sha256": "97066f015032df4635174e49b8cbe1e40c679aad98c48bdcb4cef15f54b4937d",
+      "coordinate_system": "EPSG:4326",
+      "note": ""
+    },
+    "official_bus_stops": {
+      "local_filename": "reference_data/v2/raw/seoul_bus_stops_20260804.xlsx",
+      "url": "https://data.seoul.go.kr/dataList/OA-15067/S/1/datasetView.do",
+      "provider": "Seoul Open Data",
+      "license": "Public Nuri Type 1",
+      "byte_size": 740744,
+      "sha256": "67fe6ba73370f00c3025d5b4291e9a318722c0637ff08507f16521596e298e4c",
+      "coordinate_system": "EPSG:4326",
+      "note": ""
+    }
+  },
+  "derived_artifacts": {
+    "reference_data/v3/bus_network.json": {
+      "byte_size": 54425889,
+      "sha256": "055669c330370dd07f99cfc9a6218932715ac01c0ef3b11fac21c46b8b600615"
+    },
+    "reference_data/v3/bus_coverage_audit.csv": {
+      "byte_size": 32935,
+      "sha256": "fc11bbbc559981f3185d64dca75aa14ae4d6ade384cb16aaa8bf499909694005"
+    },
+    "reference_data/v3/bus_coverage_summary.json": {
+      "byte_size": 226,
+      "sha256": "cf386390994055c8a9373ddfd95c9e25bd476c0125fed180b292fd7b93acfed5"
+    },
+    "reference_data/v3/graphs/car.graph.pkl.gz": {
+      "byte_size": 349091274,
+      "sha256": "497ff0236ee74ea23b741d1636f794bc449965333fb5490d7d5a613271417ad7"
+    },
+    "reference_data/v3/graphs/car_graph_stats.json": {
+      "byte_size": 268,
+      "sha256": "127ee8d1c230b60a3a7e2f86864a4b99cd766df17ee9ebf7cb6df83abb38b4ab"
+    },
+    "reference_data/v2/rail_network.json": {
+      "byte_size": 5103153,
+      "sha256": "0e6520d9a185be8bb3125866ac86dd21bb3789f86cf714c2b77a49a1618de2cd"
+    },
+    "reference_data/v2/graphs/walk.graph.pkl.gz": {
+      "byte_size": 53762680,
+      "sha256": "adab0181cf86d140ad17804c03ca31dcf6162dcace47e18d4f257ab9ad7cb515"
+    },
+    "reference_data/v2/graphs/bike.graph.pkl.gz": {
+      "byte_size": 42449040,
+      "sha256": "3f567c83b1985d01af9e5a8e70017fca8c0d8b98c14b9b4895191886f621f02c"
+    }
+  },
+  "coverage": {
+    "official_route_count": 718,
+    "complete_route_count": 713,
+    "failed_route_count": 5,
+    "total_official_stop_pairs": 40958,
+    "total_routable_stop_pairs": 40949,
+    "created_at": "2026-08-31T07:44:29.508068+00:00"
+  },
+  "limitations": [
+    "Ten official routes contain 14 stop pairs that remain unroutable on the regional OSM car graph and are excluded from v3 generation.",
+    "The official downloaded schema does not expose route direction as a separate field."
+  ]
+}

@@ -1,0 +1,11 @@
+mutation_type,tests,detected,missed,detection_rate
+rail_point_move,1,1,0,1.0
+rail_station_sequence_change,1,1,0,1.0
+bus_route_id_change,1,1,0,1.0
+bus_stop_sequence_change,1,1,0,1.0
+walk_point_off_network,1,1,0,1.0
+timestamp_reversal,1,1,0,1.0
+teleport,1,1,0,1.0
+impossible_speed,1,1,0,1.0
+invalid_transfer,1,1,0,1.0
+gps_label_leakage,1,1,0,1.0

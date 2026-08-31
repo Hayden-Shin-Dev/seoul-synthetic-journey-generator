@@ -10,6 +10,12 @@ Contact: min.developer@gmail.com
 
 It does not read or tune against an external mobility classifier. It creates the journey first, keeps Ground Truth in separate files, applies sensor noise, validates the result, and freezes the dataset as a versioned artifact.
 
+Dataset v3 is the current real-reference implementation. It uses a versioned
+regional South Korea OSM PBF for bus and car road geometry, official Seoul bus
+route and stop files, actual railway relation geometry, and separate local
+car, walk, and bike graphs. The frozen external evaluation package is
+`output/evaluation_dataset_v3` and contains 700 journeys.
+
 This is not real user GPS, iPhone collection data, or a record of Seoul residents' movements. The correct description is a synthetic labelled GPS evaluation dataset generated from Seoul transport and geographic reference data.
 
 ## Project Purpose
@@ -18,7 +24,11 @@ The generator supports these labels: walk, bike, car, bus, and rail. Multimodal 
 
 ## Architecture
 
-Reference data is kept under reference_data. The processed network contains OSM derived station coordinates, bus stop coordinates, line order samples, bus corridor samples, and OSRM surface route geometry.
+Reference data is kept under `reference_data`. Dataset v3 records source URLs,
+licenses, dates, sizes, coordinate systems, and SHA-256 hashes in its reference
+manifest. Bus route coverage is audited against all 718 official route records;
+713 complete routes are eligible for generation and 5 remain excluded with
+their failed stop pairs recorded.
 
 Routing is separated from movement simulation. Routing chooses a reference corridor or transit sequence. Movement simulation adds variable speed, acceleration, deceleration, pauses, station dwell, stop and go behavior, and time profile variation.
 
@@ -53,7 +63,11 @@ The script keeps raw and processed data separate and writes the provenance manif
 
 ## Routing
 
-Walk, bike, and car use stored surface corridor geometry derived from OSM road routing. Bus uses ordered stop samples. Rail uses ordered station samples from the stored line sequences. The generator does not connect arbitrary stations with a single straight line.
+Walk, bike, and car use separate local OSM graphs and profiles. Bus uses the
+official ordered stop sequence plus locally routed OSM road geometry. Rail uses
+validated OSM railway relation and way geometry with ordered station joins.
+The v3 generator rejects missing geometry and does not use straight-line,
+fabricated, or cross-mode fallback routes.
 
 ## Movement Simulation
 
@@ -88,20 +102,25 @@ python scripts/generate_dataset.py --poc
 python scripts/validate_dataset.py output/poc
 ```
 
-The full version is generated with the configured target counts.
+The v3 full version is generated with the configured target counts.
 
 ```text
-python scripts/generate_dataset.py
-python scripts/validate_dataset.py output/dataset_v1
+python scripts/generate_dataset_v3.py --full --force
+python scripts/validate_dataset_v3.py output/evaluation_dataset_v3_candidate
+python scripts/write_v3_reports.py
+python scripts/freeze_dataset_v3.py output/evaluation_dataset_v3_candidate
+python scripts/export_dataset_v3.py output/evaluation_dataset_v3_candidate output/evaluation_dataset_v3
 ```
 
 The generator uses seed 2026. The per journey random stream is derived from that seed and the journey number, so the same code, reference snapshot, configuration, and seed produce the same true trajectory and observations.
 
 ## Dataset Validation
 
-The validation suite checks schema, leakage, coordinate validity, missing coordinates, timestamp order, sequence order, duplicate events, accuracy, speed, teleportation, empty and zero distance journeys, trip ID consistency, segment order, segment overlap, segment metadata, and GPS timestamp coverage.
-
-The final dataset passed 11,903 checks with zero failures.
+The v3 validation suite checks journey endpoints, complete timelines, separate
+Ground Truth, actual reference geometry, network fidelity at every GPS point,
+physical speed and acceleration, transfers, GPS schema, and label leakage.
+The final candidate passed 7,454 checks with zero failures and 370,650 point
+level validations passed.
 
 ## Dataset Freeze
 
@@ -115,21 +134,27 @@ The freeze manifest records dataset version, generator version, Git commit, seed
 
 ## Output Package
 
-The generated dataset lives under output/dataset_v1. GPS files are under gps. Ground Truth files are under ground_truth. Dataset and journey manifests, the reference manifest, and the freeze manifest are under manifests. The validation report is under validation. Development trajectory views are under visualizations.
+The generated dataset lives under `output/evaluation_dataset_v3_candidate`
+before export. GPS files are under `gps`, Ground Truth files are under
+`ground_truth`, reports are under `validation`, and the 700 development plots
+are under `visualizations`.
 
-The evaluation only package is exported with:
+The frozen evaluation package is exported with:
 
 ```text
-python scripts/export_dataset.py output/dataset_v1 output/evaluation_dataset_v1
+python scripts/export_dataset_v3.py output/evaluation_dataset_v3_candidate output/evaluation_dataset_v3
 ```
 
-The export contains gps, ground_truth, dataset_manifest.json, journey_manifest.csv, reference_data_manifest.json, freeze_manifest.json, and validation_report.json. It does not contain generator source, raw downloads, or cache.
+The export contains GPS, Ground Truth, the 700 visualizations, manifests,
+reference provenance, validation reports, release gate, and freeze hashes. It
+does not contain generator source, raw downloads, or cache.
 
 ## Final Dataset Result
 
-The frozen dataset contains 700 journeys. Walk has 100, bike has 100, car has 100, bus has 100, rail has 100, and multimodal has 200.
-
-There are 1,791,022 observed GPS events. The segment counts are walk 500, bike 146, car 123, bus 230, and rail 237. Noise profiles are normal 411 journeys, clean 156 journeys, and noisy 133 journeys.
+The v3 frozen dataset contains 700 journeys: walk 120, bike 110, car 110,
+bus 100, rail 120, and multimodal 140. The candidate contains 370,650
+observed GPS events, 700 Ground Truth files, 456 valid multimodal transfers,
+and 700 visualizations.
 
 The full hard case counts are recorded in output/dataset_v1/manifests/dataset_manifest.json. The generated examples include car near stations, walking near stations, parallel rail and road movement, car and bus confusion cases, slow bikes, fast walks, and transfer sequence cases.
 
@@ -141,7 +166,12 @@ The rail tunnel observation model is an approximation. It includes sparse points
 
 Traffic variation is procedural. It is not a calibrated traffic simulation and should not be described as an exact reconstruction of Seoul traffic at a particular time.
 
-The bundled bus geometry is a compact reproducible sample derived from OSM stop positions and public route identifiers. A complete production release should import the current Seoul bus route and stop sequence file and record that exact file version.
+The regional OSM extract is used because a Seoul-only extract did not cover
+all official metropolitan bus stops. Five official routes remain excluded
+because their required stop pairs have no connected regional graph path.
+Station access uses validated station joins with an explicit fallback because
+an entrance reference was not available in the acquired sources. These facts
+are recorded in the v3 reference manifest and coverage audit.
 
 ## Development Timeline
 
@@ -150,6 +180,24 @@ The work was kept in small commits so the repository history records the build o
 The project scaffold was created first and the independent Git repository was initialized.
 
 The configuration loader was made dependency free so the repository can read the small YAML configuration files without requiring PyYAML.
+
+The reference feasibility audit approved a no API key acquisition plan.
+
+The regional OSM extract and official Seoul bus files were acquired and hashed.
+
+Separate car, walk, and bike reference graphs were validated, with railway
+relation geometry retained for rail journeys.
+
+All 718 official bus routes were audited and the 713 complete routes were
+used for v3 generation. Five failed routes were recorded and excluded.
+
+The v3 generator was changed to build complete journeys first, add actual
+network based movement, insert routed walk transfer segments, and create
+GPS observations from the true trajectory.
+
+The final v3 candidate passed 7,454 independent checks, all 370,650 point
+checks passed, all 456 transfer checks passed, and 700 journey plots were
+created.
 
 The Seoul reference preparation script, source manifest, station and bus stop snapshot, and processed network were added.
 

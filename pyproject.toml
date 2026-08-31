@@ -7,7 +7,15 @@ name = "seoul-synthetic-journey-generator"
 version = "0.1.0"
 description = "Independent synthetic labelled GPS dataset generator for Seoul mobility evaluation"
 requires-python = ">=3.11"
-dependencies = []
+dependencies = [
+    "matplotlib>=3.8",
+    "networkx>=3.2",
+    "openpyxl>=3.1",
+    "osmium>=4.0",
+    "pandas>=2.0",
+    "shapely>=2.0",
+    "scipy>=1.10",
+]
 
 [project.optional-dependencies]
 dev = ["pytest>=8"]
@@ -15,4 +23,3 @@ dev = ["pytest>=8"]
 [tool.pytest.ini_options]
 pythonpath = ["src"]
 testpaths = ["tests"]
-

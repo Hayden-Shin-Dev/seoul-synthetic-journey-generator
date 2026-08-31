@@ -1,0 +1,7 @@
+category,journey_count,unique_route_ids,unique_rail_lines,unique_od_rounded_4dp,unique_mode_sequences,duration_min_s,duration_max_s,gps_point_min,gps_point_max,unique_boarding_stops,unique_alighting_stops,unique_stop_pairs
+bike,110,0,0,12,1,554.501,2302.212,94,389,0,0,0
+bus,100,94,0,100,1,117.329,18196.414,17,3107,100,100,100
+car,110,0,0,12,1,567.403,1697.793,95,285,0,0,0
+multimodal,140,5,4,6,6,4548.344,17787.904,769,2924,5,5,5
+rail,120,0,10,115,1,185.216,3686.045,32,622,0,0,0
+walk,120,0,0,12,1,1702.514,8459.399,292,1458,0,0,0
