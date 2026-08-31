@@ -238,7 +238,8 @@ class ReferenceV2:
                         continue
                     first_line, first_index = rng.choice(options)
                     second_line, second_index = rng.choice(options)
-                    first = self.rail_spec(rng, start_index=first_index, line=first_line)
+                    first_start = rng.randint(max(0, first_index - 8), first_index - 2)
+                    first = self.rail_spec(rng, start_index=first_start, end_index=first_index, line=first_line)
                     second = self.rail_spec(rng, start_index=second_index, line=second_line)
                     before = self._nearby_point(rng, first.geometry[0], 900, 2500)
                     after = self._nearby_point(rng, second.geometry[-1], 900, 2500)
@@ -323,7 +324,7 @@ def simulate_true(spec: RouteSpec, start: datetime, rng: random.Random, time_fac
             speed = max(0.25 if spec.mode in {"car", "bus", "rail"} else 0.55, base * max(0.25, ramp))
             speed = min(MAX_SPEED[spec.mode], speed)
             dt = rng.uniform(4.8, 6.8)
-            if (section_end - current) / speed < 2.5:
+            if (section_end - current) / speed < 4.5:
                 break
             step = min(section_end - current, speed * dt)
             dt = max(0.25, step / speed)
@@ -342,6 +343,9 @@ def simulate_true(spec: RouteSpec, start: datetime, rng: random.Random, time_fac
                     timestamp += timedelta(seconds=remaining)
                     break
                 dt = min(rng.uniform(4.8, 6.8), remaining)
+                if remaining - dt < 4.5:
+                    timestamp += timedelta(seconds=remaining)
+                    break
                 elapsed += dt
                 timestamp += timedelta(seconds=dt)
                 points.append(Point(timestamp, location[0], location[1], 0.0, points[-1].course_deg if points else 0.0, segment_id, spec.mode))

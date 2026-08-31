@@ -80,7 +80,7 @@ def validate(dataset: Path) -> dict:
             multimodal_rows.append({"trip_id": trip_id, "segment_count": len(segments), "modes": ">".join(segment.get("mode", "") for segment in segments), "status": "PASS" if transfer_ok and all_geo_ok else "FAIL"})
     add(checks, "journey_manifest_count", _manifest_count(dataset) == len(gps_files), "manifest count equals files")
     add(checks, "gps_speed_cap", max_speed <= 35.0, f"max reported speed {max_speed:.3f}m/s")
-    add(checks, "gps_interval_range", min_interval >= 0.1 and max_interval <= 35.0, f"observed interval range {min_interval:.3f}-{max_interval:.3f}s including explicitly modelled missing fixes")
+    add(checks, "gps_interval_range", min_interval >= 3.5 and max_interval <= 35.0, f"observed interval range {min_interval:.3f}-{max_interval:.3f}s including explicitly modelled missing fixes")
     add(checks, "category_counts", sum(counts.values()) == len(gps_files) and all(counts[category] > 0 for category in ("walk", "bike", "car", "bus", "rail", "multimodal")), str(dict(counts)))
     _write_rows(dataset / "validation" / "geometry_validation.csv", geometry_rows)
     _write_rows(dataset / "validation" / "physical_validation.csv", physical_rows)
