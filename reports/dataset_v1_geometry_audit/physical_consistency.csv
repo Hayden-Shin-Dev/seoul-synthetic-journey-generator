@@ -1,0 +1,7 @@
+mode,interval_count,median_implied_speed_mps,p95_implied_speed_mps,max_implied_speed_mps,max_abs_acceleration_mps2,negative_time_count,duplicate_timestamp_count,zero_time_movement_count,speed_over_80_mps_count,speed_over_mode_limit_count,acceleration_over_8_mps2_count,teleport_over_100_mps_count,status
+walk,1368530,2.052,6.902,51.500,67.100,0,0,0,0,44323,73,0,FAIL
+bike,120638,3.272,7.567,44.198,30.374,0,0,0,0,27,9,0,FAIL
+car,65088,4.463,10.040,31.903,16.774,0,0,0,0,0,11,0,FAIL
+bus,166643,4.631,9.983,46.015,35.814,0,0,0,0,1,26,0,FAIL
+rail,69423,9.523,16.056,49.053,26.492,0,0,0,0,0,28,0,FAIL
+unknown,0,,,,,0,0,0,0,0,0,0,PASS
