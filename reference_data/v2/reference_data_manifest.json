@@ -47896,5 +47896,125 @@
         "member_count": 13
       }
     ]
+  },
+  "reference_network_artifacts": {
+    "rail_relation_count": 161,
+    "rail_valid_relation_count": 73,
+    "rail_line_5_valid_relation_count": 8,
+    "official_bus_route_count": 718,
+    "usable_bus_route_count": 55,
+    "excluded_bus_route_count": 663,
+    "bus_augmentation": {
+      "replaced_route_count": 29,
+      "requested_route_names": [
+        "143",
+        "402",
+        "421",
+        "740",
+        "7016",
+        "100",
+        "101",
+        "140",
+        "150",
+        "151",
+        "160",
+        "260",
+        "270",
+        "271",
+        "273",
+        "301",
+        "360",
+        "401",
+        "405",
+        "420",
+        "461",
+        "470",
+        "500",
+        "507",
+        "540",
+        "571",
+        "600",
+        "602",
+        "603",
+        "604"
+      ]
+    },
+    "artifacts": {
+      "rail_network.json": {
+        "local_filename": "reference_data/v2/rail_network.json",
+        "byte_size": 5103153,
+        "sha256": "0e6520d9a185be8bb3125866ac86dd21bb3789f86cf714c2b77a49a1618de2cd"
+      },
+      "rail_reference_validation.csv": {
+        "local_filename": "reference_data/v2/rail_reference_validation.csv",
+        "byte_size": 11340,
+        "sha256": "7425852367a6e6a57381fef5ba984b36e8bba3d30e8aee02133952e23e8dedc2"
+      },
+      "bus_network.json": {
+        "local_filename": "reference_data/v2/bus_network.json",
+        "byte_size": 19913439,
+        "sha256": "ee555159fdd91e8a923375a9469f464ea4c144193e7a7ab9ed522c69a23a3488"
+      },
+      "bus_reference_validation.csv": {
+        "local_filename": "reference_data/v2/bus_reference_validation.csv",
+        "byte_size": 85389,
+        "sha256": "99be3b4492f83388eee235e455ccc65a75aac422d8e79fc859599d3cbd8eeb38"
+      },
+      "bus_reference_summary.json": {
+        "local_filename": "reference_data/v2/bus_reference_summary.json",
+        "byte_size": 177,
+        "sha256": "83a2f1defefebb6adc001e97e874cc84986d98f676af839217cb0b94cd50d124"
+      },
+      "bus_reference_augmentation_summary.json": {
+        "local_filename": "reference_data/v2/bus_reference_augmentation_summary.json",
+        "byte_size": 430,
+        "sha256": "56c2d6c4caf28613f1608c79b382e776a163d20ca66d536b6ea47e9da62d3f19"
+      }
+    },
+    "local_graphs": {
+      "car": {
+        "local_filename": "reference_data/v2/graphs/car.graph.pkl.gz",
+        "byte_size": 33880955,
+        "sha256": "1c8ce1c9b6b5e0ae7413ffacd51f35d9b3ee76e589bbc0c438a05a70cb3c7ae9",
+        "stats": {
+          "mode": "car",
+          "way_count": 178571,
+          "node_count": 854751,
+          "directed_edge_count": 1709719,
+          "component_count": 510,
+          "largest_component_nodes": 847072,
+          "restriction_count": 5555
+        }
+      },
+      "walk": {
+        "local_filename": "reference_data/v2/graphs/walk.graph.pkl.gz",
+        "byte_size": 53762680,
+        "sha256": "adab0181cf86d140ad17804c03ca31dcf6162dcace47e18d4f257ab9ad7cb515",
+        "stats": {
+          "mode": "walk",
+          "way_count": 261960,
+          "node_count": 1351412,
+          "directed_edge_count": 2890262,
+          "component_count": 1579,
+          "largest_component_nodes": 1327717,
+          "restriction_count": 0
+        }
+      },
+      "bike": {
+        "local_filename": "reference_data/v2/graphs/bike.graph.pkl.gz",
+        "byte_size": 42449040,
+        "sha256": "3f567c83b1985d01af9e5a8e70017fca8c0d8b98c14b9b4895191886f621f02c",
+        "stats": {
+          "mode": "bike",
+          "way_count": 192621,
+          "node_count": 1081391,
+          "directed_edge_count": 2228293,
+          "component_count": 1636,
+          "largest_component_nodes": 1057350,
+          "restriction_count": 0
+        }
+      }
+    },
+    "updated_at": "2026-08-31T04:10:09.426613+00:00"
   }
 }
