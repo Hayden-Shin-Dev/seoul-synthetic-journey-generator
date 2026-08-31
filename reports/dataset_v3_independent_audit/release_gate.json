@@ -1,0 +1,14 @@
+{
+  "status": "PASS",
+  "independent_journey_fail": 0,
+  "independent_point_fail": 0,
+  "invalid_transfer": 0,
+  "GT_leakage": 0,
+  "mandatory_mutation_missed": 0,
+  "frozen_hash_mismatch": 0,
+  "bus_official_routes": 718,
+  "bus_validated_routes": 713,
+  "bus_routes_used": 99,
+  "rail_lines_used": 10,
+  "production_independence": "PASS"
+}

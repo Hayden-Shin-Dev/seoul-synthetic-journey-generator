@@ -1,0 +1,2 @@
+exact_duplicate_gps_files,near_duplicate_gt_signatures,near_duplicate_method,status
+0,440,exact observed GPS SHA-256 versus full Ground Truth route and rounded endpoint signature,PASS

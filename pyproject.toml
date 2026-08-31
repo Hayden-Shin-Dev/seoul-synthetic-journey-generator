@@ -14,6 +14,7 @@ dependencies = [
     "osmium>=4.0",
     "pandas>=2.0",
     "shapely>=2.0",
+    "scipy>=1.10",
 ]
 
 [project.optional-dependencies]
