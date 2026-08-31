@@ -38,6 +38,7 @@ def main() -> None:
     frozen_at = datetime.now(UTC).isoformat()
     freeze = {"dataset_version": "evaluation_dataset_v2", "generator_version": manifest.get("generator_version", "2.0.0"), "git_commit": commit, "seed": manifest["seed"], "reference_manifest_sha256": sha256(reference_manifest), "generator_config_sha256": sha256(config), "file_count": len(files), "file_hashes": files, "validation": {"status": report["status"], "passed": report["passed"], "failed": report["failed"]}, "frozen_at": frozen_at, "status": "FROZEN"}
     manifest["freeze"] = {"status": "FROZEN", "git_commit": commit, "frozen_at": frozen_at}
+    manifest["status"] = "FROZEN"
     manifest_path.write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8")
     (dataset / "manifests" / "freeze_manifest.json").write_text(json.dumps(freeze, ensure_ascii=False, indent=2), encoding="utf-8")
     print(json.dumps({"status": "FROZEN", "dataset": str(dataset), "git_commit": commit, "file_count": len(files)}))
