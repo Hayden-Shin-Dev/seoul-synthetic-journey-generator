@@ -1,6 +1,6 @@
 {
   "dataset_version": "reference_v3",
-  "created_at": "2026-08-31T06:34:04.295027+00:00",
+  "created_at": "2026-08-31T07:46:18.924746+00:00",
   "api_key_required": false,
   "osm_attribution": "OpenStreetMap contributors, ODbL 1.0",
   "sources": {
@@ -37,16 +37,16 @@
   },
   "derived_artifacts": {
     "reference_data/v3/bus_network.json": {
-      "byte_size": 55185109,
-      "sha256": "30ee34df08fa6f054ccb8df7c094c50123aa690136647b154165fe5b85f2f76f"
+      "byte_size": 54425889,
+      "sha256": "055669c330370dd07f99cfc9a6218932715ac01c0ef3b11fac21c46b8b600615"
     },
     "reference_data/v3/bus_coverage_audit.csv": {
-      "byte_size": 33260,
-      "sha256": "8defeb0017b245bfcd5807291f57e8d70755f69491d9a71111edad5c5c32404e"
+      "byte_size": 32935,
+      "sha256": "fc11bbbc559981f3185d64dca75aa14ae4d6ade384cb16aaa8bf499909694005"
     },
     "reference_data/v3/bus_coverage_summary.json": {
-      "byte_size": 227,
-      "sha256": "b7474149dd8d42722deb65bf1a62135a74215b0de9f43481b4420462631584fa"
+      "byte_size": 226,
+      "sha256": "cf386390994055c8a9373ddfd95c9e25bd476c0125fed180b292fd7b93acfed5"
     },
     "reference_data/v3/graphs/car.graph.pkl.gz": {
       "byte_size": 349091274,
@@ -71,11 +71,11 @@
   },
   "coverage": {
     "official_route_count": 718,
-    "complete_route_count": 708,
-    "failed_route_count": 10,
+    "complete_route_count": 713,
+    "failed_route_count": 5,
     "total_official_stop_pairs": 40958,
-    "total_routable_stop_pairs": 40944,
-    "created_at": "2026-08-31T06:28:08.514012+00:00"
+    "total_routable_stop_pairs": 40949,
+    "created_at": "2026-08-31T07:44:29.508068+00:00"
   },
   "limitations": [
     "Ten official routes contain 14 stop pairs that remain unroutable on the regional OSM car graph and are excluded from v3 generation.",

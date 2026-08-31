@@ -13,6 +13,7 @@ class ReferenceV3(ReferenceV2):
 
     def __init__(self, root: Path) -> None:
         super().__init__(root)
+        self.surface_stops = list(self.bus_stops)
         reference = root / "reference_data" / "v3"
         data = json.loads((reference / "bus_network.json").read_text(encoding="utf-8"))
         self.bus = [item for item in data["routes"] if item["validation"]["status"] == "PASS" and len(item.get("pair_geometry", [])) == len(item.get("stops", [])) - 1 and all(pair.get("geometry") for pair in item.get("pair_geometry", []))]

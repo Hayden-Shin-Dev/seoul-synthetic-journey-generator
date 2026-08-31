@@ -73,41 +73,68 @@ class LocalRouter:
         return [(node_id, distance) for distance, node_id in candidates]
 
     def route(self, start: tuple[float, float], end: tuple[float, float], max_snap_distance_m: float = 500.0, respect_restrictions: bool = True) -> RouteResult:
-        start_candidates = self.nearest_nodes(start, max_snap_distance_m)
-        end_candidates = self.nearest_nodes(end, max_snap_distance_m)
+        start_candidates = self._route_candidates(start, max_snap_distance_m)
+        end_candidates = self._route_candidates(end, max_snap_distance_m)
         best = None
         pairs = [(start_candidates[0], end_candidates[0])]
         pairs.extend((start_candidate, end_candidate) for start_candidate in start_candidates[1:] for end_candidate in end_candidates)
-        for (start_id, start_snap), (end_id, end_snap) in pairs:
+        for (start_id, start_snap, start_projected), (end_id, end_snap, end_projected) in pairs:
             if start_id == end_id:
                 continue
             result = self._shortest_path(start_id, end_id, respect_restrictions)
             if result is not None:
-                best = (result, start_id, end_id, start_snap, end_snap)
+                best = (result, start_id, end_id, start_snap, end_snap, start_projected, end_projected)
                 break
         if best is None:
-            for start_id, start_snap in start_candidates:
-                for end_id, end_snap in end_candidates:
+            for start_id, start_snap, start_projected in start_candidates:
+                for end_id, end_snap, end_projected in end_candidates:
                     if start_id == end_id:
                         continue
                     result = self._shortest_path(start_id, end_id, respect_restrictions)
                     if result is not None and (best is None or result[1] < best[0][1]):
-                        best = (result, start_id, end_id, start_snap, end_snap)
+                        best = (result, start_id, end_id, start_snap, end_snap, start_projected, end_projected)
         if best is None:
             raise ValueError(f"no connected {self.mode} route from the candidate graph nodes")
-        result, start_id, end_id, start_snap, end_snap = best
+        result, start_id, end_id, start_snap, end_snap, start_projected, end_projected = best
         node_ids, distance, duration = result
+        route_geometry = list(self.nodes[node_id] for node_id in node_ids)
+        if start_projected is not None and route_geometry[0] != start_projected:
+            route_geometry.insert(0, start_projected)
+        if end_projected is not None and route_geometry[-1] != end_projected:
+            route_geometry.append(end_projected)
         return RouteResult(
             mode=self.mode,
             start_node=start_id,
             end_node=end_id,
             node_ids=tuple(node_ids),
-            geometry=tuple(self.nodes[node_id] for node_id in node_ids),
+            geometry=tuple(route_geometry),
             distance_m=distance,
             duration_s=duration,
             start_snap_distance_m=start_snap,
             end_snap_distance_m=end_snap,
         )
+
+    def _route_candidates(self, point: tuple[float, float], max_distance_m: float) -> list[tuple[int, float, tuple[float, float]]]:
+        candidates: dict[int, tuple[float, tuple[float, float]]] = {}
+        for node_id, distance in self.nearest_nodes(point, max_distance_m, limit=5):
+            candidates[node_id] = (distance, self.nodes[node_id])
+        center = self._cell(point)
+        nearby_nodes: set[int] = set()
+        for lat_cell in range(center[0] - 4, center[0] + 5):
+            for lon_cell in range(center[1] - 4, center[1] + 5):
+                nearby_nodes.update(self.grid.get((lat_cell, lon_cell), []))
+        for source in nearby_nodes:
+            first = self.nodes[source]
+            for target, _edge_distance, _way_id, _speed in self.adjacency.get(source, []):
+                second = self.nodes[target]
+                distance, projected = _point_to_segment(point, first, second)
+                if distance > max_distance_m:
+                    continue
+                for node_id in (source, target):
+                    current = candidates.get(node_id)
+                    if current is None or distance < current[0]:
+                        candidates[node_id] = (distance, projected)
+        return [(node_id, distance, projected) for node_id, (distance, projected) in sorted(candidates.items(), key=lambda item: (item[1][0], item[0]))[:10]]
 
     def _shortest_path(self, start: int, end: int, respect_restrictions: bool) -> tuple[list[int], float, float] | None:
         goal = self.nodes[end]
@@ -152,3 +179,16 @@ class LocalRouter:
 def route_geometry_length(geometry: Iterable[tuple[float, float]]) -> float:
     points = list(geometry)
     return sum(haversine_m(first, second) for first, second in zip(points, points[1:]))
+
+
+def _point_to_segment(point: tuple[float, float], first: tuple[float, float], second: tuple[float, float]) -> tuple[float, tuple[float, float]]:
+    scale_x = 111_320.0 * max(0.2, math.cos(math.radians(point[0])))
+    scale_y = 111_320.0
+    px, py = point[1] * scale_x, point[0] * scale_y
+    ax, ay = first[1] * scale_x, first[0] * scale_y
+    bx, by = second[1] * scale_x, second[0] * scale_y
+    dx, dy = bx - ax, by - ay
+    denominator = dx * dx + dy * dy
+    fraction = 0.0 if denominator == 0 else max(0.0, min(1.0, ((px - ax) * dx + (py - ay) * dy) / denominator))
+    projected = (first[0] + fraction * (second[0] - first[0]), first[1] + fraction * (second[1] - first[1]))
+    return math.hypot(px - projected[1] * scale_x, py - projected[0] * scale_y), projected

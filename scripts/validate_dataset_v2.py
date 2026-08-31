@@ -114,14 +114,32 @@ def _segment_times_ordered(segments: list[dict]) -> bool:
         return False
 
 
-def _point_to_geometry_m(point: tuple[float, float], geometry: list[list[float]]) -> float:
+def _geometry_grid(geometry: list[list[float]], cell_size: float = 0.002) -> dict[tuple[int, int], list[tuple[list[float], list[float]]]]:
+    grid: dict[tuple[int, int], list[tuple[list[float], list[float]]]] = {}
+    for first, second in zip(geometry, geometry[1:]):
+        for lat_cell in range(math.floor(min(first[0], second[0]) / cell_size), math.floor(max(first[0], second[0]) / cell_size) + 1):
+            for lon_cell in range(math.floor(min(first[1], second[1]) / cell_size), math.floor(max(first[1], second[1]) / cell_size) + 1):
+                grid.setdefault((lat_cell, lon_cell), []).append((first, second))
+    return grid
+
+
+def _point_to_geometry_m(point: tuple[float, float], geometry: list[list[float]], grid: dict[tuple[int, int], list[tuple[list[float], list[float]]]] | None = None) -> float:
     if len(geometry) < 2:
         return float("inf")
     scale_x = 111_320.0 * max(0.2, math.cos(math.radians(point[0])))
     scale_y = 111_320.0
     px, py = point[1] * scale_x, point[0] * scale_y
     best = float("inf")
-    for first, second in zip(geometry, geometry[1:]):
+    candidates = None
+    if grid is not None:
+        cell = (math.floor(point[0] / 0.002), math.floor(point[1] / 0.002))
+        candidates = []
+        for lat_cell in range(cell[0] - 1, cell[0] + 2):
+            for lon_cell in range(cell[1] - 1, cell[1] + 2):
+                candidates.extend(grid.get((lat_cell, lon_cell), []))
+        if not candidates:
+            candidates = None
+    for first, second in candidates or zip(geometry, geometry[1:]):
         ax, ay = first[1] * scale_x, first[0] * scale_y
         bx, by = second[1] * scale_x, second[0] * scale_y
         dx, dy = bx - ax, by - ay
@@ -134,6 +152,7 @@ def _point_to_geometry_m(point: tuple[float, float], geometry: list[list[float]]
 def _point_checks(rows: list[dict], true_data: dict) -> tuple[bool, list[dict], dict]:
     true_points = true_data.get("points", [])
     true_segments = {int(item["segment_id"]): item.get("reference_geometry", []) for item in true_data.get("segments", [])}
+    segment_grids = {segment_id: _geometry_grid(geometry) for segment_id, geometry in true_segments.items() if len(geometry) >= 2}
     if not rows or not true_points or not true_segments:
         return False, [], {"count": 0}
     true_times = [datetime.fromisoformat(item["timestamp"]).timestamp() for item in true_points]
@@ -156,8 +175,9 @@ def _point_checks(rows: list[dict], true_data: dict) -> tuple[bool, list[dict], 
             seconds = observed_time - previous_observed[0]
             implied = haversine_m(previous_observed[1], observed_coord) / seconds if seconds > 0 else float("inf")
         previous_observed = (observed_time, observed_coord)
-        true_distance = _point_to_geometry_m(true_coord, geometry)
-        observed_distance = _point_to_geometry_m(observed_coord, geometry)
+        grid = segment_grids.get(int(truth.get("segment_id", 0)))
+        true_distance = _point_to_geometry_m(true_coord, geometry, grid)
+        observed_distance = _point_to_geometry_m(observed_coord, geometry, grid)
         physical_status = "PASS" if true_distance <= 35.0 and implied <= 80.0 else "FAIL"
         output.append({"sequence": sequence, "timestamp": row["timestamp"], "mode_gt_from_separate_gt": mode, "true_lat": truth["lat"], "true_lon": truth["lon"], "observed_lat": row["latitude"], "observed_lon": row["longitude"], "expected_network_type": expected, "true_distance_to_network_m": round(true_distance, 3), "observed_distance_to_network_m": round(observed_distance, 3), "distance_to_expected_network": round(observed_distance, 3), "implied_speed": round(implied, 3) if math.isfinite(implied) else "inf", "physical_status": physical_status})
     return all(item["physical_status"] == "PASS" for item in output), output, {"count": len(output)}
@@ -189,7 +209,7 @@ def _mode_metadata_ok(mode: str, segment: dict) -> bool:
     if mode == "bus":
         reference = str(segment.get("route_geometry_reference", ""))
         profile = segment.get("routing_profile")
-        return bool(segment.get("route_id")) and len(segment.get("stop_sequence", [])) >= 3 and ((reference.startswith("local_osm_car_graph_route_") and profile == "car_graph_for_bus_road_geometry") or (reference.startswith("osm_bus_relation_") and profile == "bus_on_osm_road_graph"))
+        return bool(segment.get("route_id")) and len(segment.get("stop_sequence", [])) >= 3 and ((reference.startswith("local_osm_car_graph_route_") and profile in {"car_graph_for_bus_road_geometry", "bus_road_graph_without_turn_restriction_fallback"}) or (reference.startswith("osm_bus_relation_") and profile == "bus_on_osm_road_graph"))
     if mode == "rail":
         return bool(segment.get("line")) and bool(segment.get("relation_id")) and len(segment.get("station_sequence", [])) >= 3 and str(segment.get("rail_geometry_reference", "")).startswith("osm_rail_relation_")
     return False

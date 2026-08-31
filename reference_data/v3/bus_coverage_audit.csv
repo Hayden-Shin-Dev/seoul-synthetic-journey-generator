@@ -5,7 +5,7 @@ route_uid,route_id,official_stop_count,routable_stop_count,failed_stop_count,rou
 100000026,청계A01,12,11,0,1.0,PASS,,YES,PASS
 100000027,서대문A01,14,13,0,1.0,PASS,,YES,PASS
 100000028,새벽A741,34,33,0,1.0,PASS,,YES,PASS
-100100001,01A,25,23,1,0.958333,FAIL,no connected car route from the candidate graph nodes,REVIEW,FAIL
+100100001,01A,25,23,1,0.958333,FAIL,no connected car route from the candidate graph nodes,NO,FAIL
 100100006,101,81,80,0,1.0,PASS,,YES,PASS
 100100007,102,67,66,0,1.0,PASS,,YES,PASS
 100100008,103,70,69,0,1.0,PASS,,YES,PASS
@@ -269,7 +269,7 @@ route_uid,route_id,official_stop_count,routable_stop_count,failed_stop_count,rou
 100100412,6001,63,62,0,1.0,PASS,,YES,PASS
 100100413,6002,69,68,0,1.0,PASS,,YES,PASS
 100100414,6003,54,53,0,1.0,PASS,,YES,PASS
-100100415,6004,38,36,1,0.972973,FAIL,no connected car route from the candidate graph nodes,REVIEW,FAIL
+100100415,6004,38,37,0,1.0,PASS,,YES,PASS
 100100416,6005,60,59,0,1.0,PASS,,YES,PASS
 100100417,6008,57,56,0,1.0,PASS,,YES,PASS
 100100418,6011,63,62,0,1.0,PASS,,YES,PASS
@@ -312,10 +312,10 @@ route_uid,route_id,official_stop_count,routable_stop_count,failed_stop_count,rou
 100100525,8772,28,27,0,1.0,PASS,,YES,PASS
 100100533,6017,61,60,0,1.0,PASS,,YES,PASS
 100100537,740,93,92,0,1.0,PASS,,YES,PASS
-100100538,6018,59,57,1,0.982759,FAIL,no connected car route from the candidate graph nodes,REVIEW,FAIL
+100100538,6018,59,58,0,1.0,PASS,,YES,PASS
 100100549,100,122,121,0,1.0,PASS,,YES,PASS
 100100550,662,75,74,0,1.0,PASS,,YES,PASS
-100100551,673,104,102,1,0.990291,FAIL,no connected car route from the candidate graph nodes,REVIEW,FAIL
+100100551,673,104,103,0,1.0,PASS,,YES,PASS
 100100552,7739,43,42,0,1.0,PASS,,YES,PASS
 100100553,350,97,96,0,1.0,PASS,,YES,PASS
 100100564,320,88,87,0,1.0,PASS,,YES,PASS
@@ -328,7 +328,7 @@ route_uid,route_id,official_stop_count,routable_stop_count,failed_stop_count,rou
 100100574,541,123,122,0,1.0,PASS,,YES,PASS
 100100576,6516,121,120,0,1.0,PASS,,YES,PASS
 100100578,3321,74,73,0,1.0,PASS,,YES,PASS
-100100579,3420,89,87,1,0.988636,FAIL,no connected car route from the candidate graph nodes,REVIEW,FAIL
+100100579,3420,89,88,0,1.0,PASS,,YES,PASS
 100100583,121,86,85,0,1.0,PASS,,YES,PASS
 100100584,6010,71,70,0,1.0,PASS,,YES,PASS
 100100585,N37,112,111,0,1.0,PASS,,YES,PASS
@@ -410,7 +410,7 @@ route_uid,route_id,official_stop_count,routable_stop_count,failed_stop_count,rou
 105900005,성북21,36,35,0,1.0,PASS,,YES,PASS
 105900006,동대문03,22,21,0,1.0,PASS,,YES,PASS
 106000001,8221,15,14,0,1.0,PASS,,YES,PASS
-106000004,01B,15,12,2,0.857143,FAIL,no connected car route from the candidate graph nodes,REVIEW,FAIL
+106000004,01B,15,12,2,0.857143,FAIL,no connected car route from the candidate graph nodes,NO,FAIL
 106000005,서울07퇴근,9,8,0,1.0,PASS,,YES,PASS
 106000006,8442퇴근,15,14,0,1.0,PASS,,YES,PASS
 106000007,8333,26,25,0,1.0,PASS,,YES,PASS
@@ -698,9 +698,9 @@ route_uid,route_id,official_stop_count,routable_stop_count,failed_stop_count,rou
 123000011,708,62,61,0,1.0,PASS,,YES,PASS
 123000013,N73,159,158,0,1.0,PASS,,YES,PASS
 123000014,6500,22,21,0,1.0,PASS,,YES,PASS
-123000021,한강버스(동부압구정),9,6,2,0.75,FAIL,"no car graph node within 250.0m of (37.529, 126.9346389)",REVIEW,FAIL
-123000023,한강버스(서부),5,2,2,0.5,FAIL,"no car graph node within 250.0m of (37.529, 126.9346389)",REVIEW,FAIL
-123000024,한강버스(동부옥수),9,6,2,0.75,FAIL,"no car graph node within 250.0m of (37.529, 126.9346389)",REVIEW,FAIL
+123000021,한강버스(동부압구정),9,6,2,0.75,FAIL,"no car graph node within 250.0m of (37.529, 126.9346389)",NO,FAIL
+123000023,한강버스(서부),5,2,2,0.5,FAIL,"no car graph node within 250.0m of (37.529, 126.9346389)",NO,FAIL
+123000024,한강버스(동부옥수),9,6,2,0.75,FAIL,"no car graph node within 250.0m of (37.529, 126.9346389)",NO,FAIL
 123900001,송파01,28,27,0,1.0,PASS,,YES,PASS
 123900002,송파02,31,30,0,1.0,PASS,,YES,PASS
 123900003,송파03,22,21,0,1.0,PASS,,YES,PASS
@@ -710,7 +710,7 @@ route_uid,route_id,official_stop_count,routable_stop_count,failed_stop_count,rou
 124000013,6103,49,48,0,1.0,PASS,,YES,PASS
 124000014,6007,46,45,0,1.0,PASS,,YES,PASS
 124000016,N6000,22,21,0,1.0,PASS,,YES,PASS
-124000036,345,87,85,1,0.988372,FAIL,no connected car route from the candidate graph nodes,REVIEW,FAIL
+124000036,345,87,86,0,1.0,PASS,,YES,PASS
 124000038,342,111,110,0,1.0,PASS,,YES,PASS
 124000039,3323,78,77,0,1.0,PASS,,YES,PASS
 124000040,8332,31,30,0,1.0,PASS,,YES,PASS

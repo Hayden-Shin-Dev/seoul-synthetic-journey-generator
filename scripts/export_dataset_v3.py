@@ -27,7 +27,7 @@ def main() -> None:
     if json.loads((dataset / "manifests" / "freeze_manifest.json").read_text(encoding="utf-8")).get("status") != "FROZEN":
         raise SystemExit("Dataset v3 must be frozen before export")
     destination.mkdir(parents=True, exist_ok=True)
-    for name in ("gps", "ground_truth"):
+    for name in ("gps", "ground_truth", "visualizations"):
         shutil.copytree(dataset / name, destination / name, dirs_exist_ok=True)
     for name in ("dataset_manifest.json", "journey_manifest.csv", "freeze_manifest.json"):
         shutil.copy2(dataset / "manifests" / name, destination / name)

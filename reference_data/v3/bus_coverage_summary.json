@@ -1,8 +1,8 @@
 {
   "official_route_count": 718,
-  "complete_route_count": 708,
-  "failed_route_count": 10,
+  "complete_route_count": 713,
+  "failed_route_count": 5,
   "total_official_stop_pairs": 40958,
-  "total_routable_stop_pairs": 40944,
-  "created_at": "2026-08-31T06:28:08.514012+00:00"
+  "total_routable_stop_pairs": 40949,
+  "created_at": "2026-08-31T07:44:29.508068+00:00"
 }

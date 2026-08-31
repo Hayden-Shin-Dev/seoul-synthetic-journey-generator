@@ -70,9 +70,24 @@ def point_to_segment_m(point: tuple[float, float], first: tuple[float, float], s
 def geometry_metrics(points: list[Point], reference_geometry: list[tuple[float, float]]) -> dict[str, Any]:
     if len(reference_geometry) < 2:
         return {"status": "FAIL", "reason": "reference geometry has fewer than two points"}
+    cell_size = 0.002
+    segment_grid: dict[tuple[int, int], list[tuple[tuple[float, float], tuple[float, float]]]] = {}
+    for first, second in zip(reference_geometry, reference_geometry[1:]):
+        lat_min, lat_max = sorted((first[0], second[0]))
+        lon_min, lon_max = sorted((first[1], second[1]))
+        for lat_cell in range(math.floor(lat_min / cell_size), math.floor(lat_max / cell_size) + 1):
+            for lon_cell in range(math.floor(lon_min / cell_size), math.floor(lon_max / cell_size) + 1):
+                segment_grid.setdefault((lat_cell, lon_cell), []).append((first, second))
     errors = []
     for point in points:
-        errors.append(min(point_to_segment_m((point.lat, point.lon), first, second) for first, second in zip(reference_geometry, reference_geometry[1:])))
+        cell = (math.floor(point.lat / cell_size), math.floor(point.lon / cell_size))
+        candidates = []
+        for lat_cell in range(cell[0] - 1, cell[0] + 2):
+            for lon_cell in range(cell[1] - 1, cell[1] + 2):
+                candidates.extend(segment_grid.get((lat_cell, lon_cell), []))
+        if not candidates:
+            candidates = list(zip(reference_geometry, reference_geometry[1:]))
+        errors.append(min(point_to_segment_m((point.lat, point.lon), first, second) for first, second in candidates))
     geometry_hash = hashlib.sha256(json.dumps(reference_geometry, separators=(",", ":")).encode("utf-8")).hexdigest()
     return {"status": "PASS" if max(errors, default=float("inf")) <= 35.0 else "FAIL", "method": "resampled_along_actual_reference_polyline", "reference_geometry_hash": geometry_hash, "reference_point_count": len(reference_geometry), "reference_distance_m": round(geometry_distance(reference_geometry), 3), "trajectory_point_to_reference_max_m": round(max(errors, default=0.0), 3), "trajectory_point_to_reference_p95_m": round(sorted(errors)[max(0, math.ceil(len(errors) * 0.95) - 1)], 3)}
 
@@ -102,10 +117,14 @@ class ReferenceV2:
                 return rng.choice(catalog)
             failures = 0
             for _ in range(80):
-                a, b = rng.sample(self.bus_stops, 2)
+                surface_stops = getattr(self, "surface_stops", self.bus_stops)
+                a, b = rng.sample(surface_stops, 2)
                 start, end = (a["lat"], a["lon"]), (b["lat"], b["lon"])
-                if haversine_m(start, end) >= 700:
+                direct_distance = haversine_m(start, end)
+                if 700 <= direct_distance <= 8000:
                     break
+            else:
+                raise ValueError(f"could not select a local {mode} journey origin and destination")
             while failures < 80:
                 try:
                     result = self.router(mode).route(start, end, max_snap_distance_m=250.0, respect_restrictions=mode == "car")
@@ -115,10 +134,12 @@ class ReferenceV2:
                     return spec
                 except ValueError:
                     failures += 1
-                    a, b = rng.sample(self.bus_stops, 2)
-                    start, end = (a["lat"], a["lon"]), (b["lat"], b["lon"])
-                    if haversine_m(start, end) < 700:
-                        continue
+                    for _ in range(80):
+                        a, b = rng.sample(surface_stops, 2)
+                        candidate_start, candidate_end = (a["lat"], a["lon"]), (b["lat"], b["lon"])
+                        if 700 <= haversine_m(candidate_start, candidate_end) <= 8000:
+                            start, end = candidate_start, candidate_end
+                            break
         key = (mode, tuple(start), tuple(end))
         result = self._route_cache.get(key)
         if result is None:
@@ -143,7 +164,7 @@ class ReferenceV2:
             raise ValueError("rail geometry subpath is too short")
         offsets = self._offsets(geometry, len(stations[start_index : end_index + 1]))
         sequence = stations[start_index : end_index + 1]
-        metadata = {"line": line["line_id"], "relation_id": line["relation_id"], "boarding_station": sequence[0]["name"], "alighting_station": sequence[-1]["name"], "station_sequence": [station["name"] for station in sequence], "rail_geometry_reference": f"osm_rail_relation_{line['relation_id']}", "routing_profile": "railway_relation_way_geometry"}
+        metadata = {"line": line["line_id"], "relation_id": line["relation_id"], "direction_from": line.get("direction_from"), "direction_to": line.get("direction_to"), "boarding_station": sequence[0]["name"], "alighting_station": sequence[-1]["name"], "station_sequence": [station["name"] for station in sequence], "station_access_method": "validated_station_join_fallback_no_entrance_reference", "rail_geometry_reference": f"osm_rail_relation_{line['relation_id']}", "routing_profile": "railway_relation_way_geometry"}
         return RouteSpec("rail", geometry, metadata, offsets, geometry_distance(geometry))
 
     def _station_indices(self, line: dict[str, Any]) -> list[int]:
@@ -252,7 +273,7 @@ class ReferenceV2:
 
     def _nearby_point(self, rng: random.Random, target: tuple[float, float], minimum: float, maximum: float) -> tuple[float, float]:
         for _ in range(100):
-            stop = rng.choice(self.bus_stops)
+            stop = rng.choice(getattr(self, "surface_stops", self.bus_stops))
             point = (stop["lat"], stop["lon"])
             distance = haversine_m(point, target)
             if minimum <= distance <= maximum:
@@ -386,6 +407,17 @@ class DatasetGeneratorV2:
         start = datetime(2026, 3, 1, rng.randint(6, 21), rng.randint(0, 59), rng.randint(0, 59), tzinfo=UTC9) + timedelta(days=rng.randint(0, 6))
         if category == "multimodal":
             specs = self.reference.multimodal(rng)
+            connected_specs: list[RouteSpec] = []
+            for spec in specs:
+                if connected_specs:
+                    previous = connected_specs[-1]
+                    gap = haversine_m(previous.geometry[-1], spec.geometry[0])
+                    if gap > 2.0:
+                        transfer = self.reference.surface("walk", rng, previous.geometry[-1], spec.geometry[0])
+                        if haversine_m(transfer.geometry[0], transfer.geometry[-1]) > 1.0:
+                            connected_specs.append(transfer)
+                connected_specs.append(spec)
+            specs = connected_specs
         else:
             spec = self.reference.rail_spec(rng, force_line5=force_line5) if category == "rail" else self.reference.bus_spec(rng) if category == "bus" else self.reference.surface(category, rng)
             specs = [spec]
@@ -456,7 +488,7 @@ def validate_journey(journey: Journey) -> dict[str, Any]:
     transfers = []
     for first, second in zip(journey.segments, journey.segments[1:]):
         distance = haversine_m((first.points[-1].lat, first.points[-1].lon), (second.points[0].lat, second.points[0].lon))
-        transfer = {"from_mode": first.mode, "to_mode": second.mode, "previous_end": [first.points[-1].lat, first.points[-1].lon], "next_start": [second.points[0].lat, second.points[0].lon], "transfer_distance_m": round(distance, 3), "transfer_location": [round((first.points[-1].lat + second.points[0].lat) / 2, 7), round((first.points[-1].lon + second.points[0].lon) / 2, 7)], "validity": "PASS" if distance <= 450 else "FAIL"}
+        transfer = {"from_mode": first.mode, "to_mode": second.mode, "previous_true_end": [first.points[-1].lat, first.points[-1].lon], "next_true_start": [second.points[0].lat, second.points[0].lon], "previous_end": [first.points[-1].lat, first.points[-1].lon], "next_start": [second.points[0].lat, second.points[0].lon], "distance_m": round(distance, 3), "transfer_distance_m": round(distance, 3), "transfer_type": "walk_transfer" if second.mode == "walk" and first.mode != "walk" else "mode_boundary", "transfer_location": [round((first.points[-1].lat + second.points[0].lat) / 2, 7), round((first.points[-1].lon + second.points[0].lon) / 2, 7)], "transfer_route": second.metadata.get("route_reference") or second.metadata.get("rail_geometry_reference") or second.metadata.get("route_geometry_reference"), "validity": "PASS" if distance <= 450 else "FAIL"}
         transfers.append(transfer)
     checks.append(("transfer_validation", all(item["validity"] == "PASS" for item in transfers)))
     return {"status": "PASS" if all(value for _name, value in checks) else "FAIL", "checks": {name: "PASS" if value else "FAIL" for name, value in checks}, "transfers": transfers, "max_true_speed_mps": round(max(speeds, default=0), 3)}
