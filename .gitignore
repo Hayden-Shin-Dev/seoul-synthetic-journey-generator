@@ -20,3 +20,4 @@ output/*
 reports/*.html
 reports/dataset_v3_independent_audit/point_independent_validation.csv
 reports/dataset_v3_independent_audit/physical_independent_validation.csv
+.git_allowed_signers
