@@ -10,6 +10,13 @@ Contact: min.developer@gmail.com
 
 It does not read or tune against an external mobility classifier. It creates the journey first, keeps Ground Truth in separate files, applies sensor noise, validates the result, and freezes the dataset as a versioned artifact.
 
+Dataset v2 is the current real-reference implementation. It uses the versioned
+Seoul OSM PBF, official Seoul bus route and stop files, actual railway and road
+geometry, and separate local car, walk, and bike graphs. The frozen external
+evaluation package is `output/evaluation_dataset_v2` and contains 700 journeys.
+The v2 implementation rejects missing geometry and does not use straight-line
+or cross-mode fallback routes.
+
 This is not real user GPS, iPhone collection data, or a record of Seoul residents' movements. The correct description is a synthetic labelled GPS evaluation dataset generated from Seoul transport and geographic reference data.
 
 ## Project Purpose
