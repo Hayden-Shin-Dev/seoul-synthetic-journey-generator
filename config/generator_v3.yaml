@@ -1,0 +1,15 @@
+dataset_version: evaluation_dataset_v3
+generator_version: 3.0.0
+seed: 52026
+coordinate_system: EPSG:4326
+reference_manifest: reference_data/v3/reference_data_manifest.json
+bus_reference: reference_data/v3/bus_network.json
+counts:
+  walk: 120
+  bike: 110
+  car: 110
+  bus: 100
+  rail: 120
+  multimodal: 140
+no_fallback_geometry: true
+complete_journey_gate: true

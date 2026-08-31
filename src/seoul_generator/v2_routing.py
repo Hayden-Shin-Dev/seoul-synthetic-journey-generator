@@ -116,8 +116,12 @@ class LocalRouter:
         durations: dict[tuple[int, int], float] = {(start, 0): 0.0}
         previous: dict[tuple[int, int], tuple[int, int]] = {}
         goal_state: tuple[int, int] | None = None
+        expanded = 0
         while queue:
             _priority, distance, node, previous_way = heapq.heappop(queue)
+            expanded += 1
+            if expanded > 150_000:
+                return None
             state = (node, previous_way)
             if distance != distances.get(state):
                 continue

@@ -398,6 +398,7 @@ class DatasetGeneratorV2:
                 point.segment_id = segment_id
             metadata = dict(spec.metadata)
             metadata["geometry_validation"] = geometry_metrics(points, spec.geometry)
+            metadata["reference_geometry"] = spec.geometry
             segment = Segment(segment_id, spec.mode, points[0].timestamp, points[-1].timestamp, points, metadata)
             segments.append(segment)
             all_points.extend(points if not all_points else points[1:])
@@ -421,7 +422,7 @@ class DatasetGeneratorV2:
                 gps = observe(journey.true_points, journey.trip_id, journey.device_id, journey.noise_profile, journey_rng)
                 _write_csv(output_dir / "gps" / f"{journey.trip_id}.csv", GPS_COLUMNS, gps)
                 _write_gt(output_dir / "ground_truth" / f"{journey.trip_id}.json", journey, validation)
-                (output_dir / "true_trajectories" / f"{journey.trip_id}.json").write_text(json.dumps({"trip_id": journey.trip_id, "points": [{"timestamp": point.timestamp.isoformat(), "lat": point.lat, "lon": point.lon, "speed_mps": point.speed_mps, "segment_id": point.segment_id, "mode": point.mode} for point in journey.true_points]}, ensure_ascii=False), encoding="utf-8")
+                (output_dir / "true_trajectories" / f"{journey.trip_id}.json").write_text(json.dumps({"trip_id": journey.trip_id, "origin": [journey.true_points[0].lat, journey.true_points[0].lon], "destination": [journey.true_points[-1].lat, journey.true_points[-1].lon], "segments": [{"segment_id": segment.segment_id, "mode": segment.mode, "reference_geometry": segment.metadata["reference_geometry"]} for segment in journey.segments], "points": [{"timestamp": point.timestamp.isoformat(), "lat": point.lat, "lon": point.lon, "speed_mps": point.speed_mps, "segment_id": point.segment_id, "mode": point.mode} for point in journey.true_points]}, ensure_ascii=False), encoding="utf-8")
                 rows.append({"trip_id": journey.trip_id, "scenario_category": category, "start_timestamp": journey.start_timestamp.isoformat(), "end_timestamp": journey.end_timestamp.isoformat(), "duration_seconds": int((journey.end_timestamp - journey.start_timestamp).total_seconds()), "distance_m": round(journey.distance_m, 3), "segment_count": len(journey.segments), "noise_profile": journey.noise_profile, "validation_status": "PASS"})
                 generated += 1
         _write_csv(output_dir / "manifests" / "journey_manifest.csv", list(rows[0]), rows)
@@ -474,9 +475,27 @@ def _read_rows(path: Path) -> list[dict[str, str]]:
 
 
 def _write_gt(path: Path, journey: Journey, validation: dict[str, Any]) -> None:
-    payload = {"trip_id": journey.trip_id, "scenario_category": journey.scenario_category, "start_time": journey.start_timestamp.isoformat(), "end_time": journey.end_timestamp.isoformat(), "post_generation_validation": validation, "segments": []}
+    payload = {"trip_id": journey.trip_id, "scenario_category": journey.scenario_category, "start_time": journey.start_timestamp.isoformat(), "end_time": journey.end_timestamp.isoformat(), "origin": {"lat": journey.true_points[0].lat, "lon": journey.true_points[0].lon}, "destination": {"lat": journey.true_points[-1].lat, "lon": journey.true_points[-1].lon}, "journey_timeline": {"single_trip_id": journey.trip_id, "continuous": True, "waiting_and_dwell_policy": "zero-speed intervals are explicit timeline events"}, "post_generation_validation": validation, "segments": []}
     for segment in journey.segments:
-        item = {"trip_id": journey.trip_id, "segment_id": segment.segment_id, "mode": segment.mode, "start_time": segment.start_timestamp.isoformat(), "end_time": segment.end_timestamp.isoformat()}
-        item.update(segment.metadata)
+        item = {"trip_id": journey.trip_id, "segment_id": segment.segment_id, "mode": segment.mode, "start_time": segment.start_timestamp.isoformat(), "end_time": segment.end_timestamp.isoformat(), "start": {"lat": segment.points[0].lat, "lon": segment.points[0].lon}, "end": {"lat": segment.points[-1].lat, "lon": segment.points[-1].lon}, "network_reference": segment.metadata.get("route_reference") or segment.metadata.get("rail_geometry_reference") or segment.metadata.get("route_geometry_reference"), "validation": segment.metadata.get("geometry_validation", {})}
+        item.update({key: value for key, value in segment.metadata.items() if key != "reference_geometry"})
+        item["timeline_events"] = _timeline_events(segment)
         payload["segments"].append(item)
     path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+
+
+def _timeline_events(segment: Segment) -> list[dict[str, Any]]:
+    events = []
+    active = None
+    for point in segment.points:
+        if point.speed_mps == 0.0:
+            if active is None:
+                active = {"event_type": "dwell" if segment.mode in {"bus", "rail"} else "pause", "start_time": point.timestamp.isoformat(), "end_time": point.timestamp.isoformat(), "lat": point.lat, "lon": point.lon}
+            else:
+                active["end_time"] = point.timestamp.isoformat()
+        elif active is not None:
+            events.append(active)
+            active = None
+    if active is not None:
+        events.append(active)
+    return events

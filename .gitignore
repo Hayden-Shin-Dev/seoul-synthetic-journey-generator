@@ -11,6 +11,10 @@ reference_data/v2/raw/*
 !reference_data/v2/raw/.gitkeep
 reference_data/v2/graphs/*
 !reference_data/v2/graphs/.gitkeep
+reference_data/v3/raw/*
+!reference_data/v3/raw/.gitkeep
+reference_data/v3/graphs/*
+!reference_data/v3/graphs/.gitkeep
 output/*
 !output/.gitkeep
 reports/*.html
