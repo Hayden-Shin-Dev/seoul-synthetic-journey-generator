@@ -1,0 +1,28 @@
+{
+  "version": "2.0.0",
+  "status": "generator_assumptions",
+  "source_note": "These are explicit synthetic simulation assumptions, not calibrated measurements from real phones, vehicles, or Seoul operations.",
+  "sampling_interval_seconds": {"min": 4.8, "max": 6.8},
+  "speed_mps": {
+    "walk": {"base": 1.35, "max": 2.6},
+    "bike": {"base": 4.8, "max": 11.0},
+    "car": {"base": 10.0, "max": 30.0},
+    "bus": {"base": 7.5, "max": 22.0},
+    "rail": {"base": 13.5, "max": 30.0}
+  },
+  "dwell_seconds": {
+    "walk": [4, 12],
+    "bus": [8, 34],
+    "rail": [22, 58]
+  },
+  "gps_noise_profiles": {
+    "clean": {"coordinate_sigma_m": 2.0, "missing_probability": 0.002},
+    "normal": {"coordinate_sigma_m": 5.0, "missing_probability": 0.015},
+    "noisy": {"coordinate_sigma_m": 9.0, "missing_probability": 0.04}
+  },
+  "physical_rules": {
+    "max_true_speed_mps": 35.0,
+    "max_transfer_distance_m": 450.0,
+    "max_reference_geometry_error_m": 35.0
+  }
+}
