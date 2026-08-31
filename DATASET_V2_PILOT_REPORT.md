@@ -14,3 +14,6 @@ manifest and artifact checks.
 
 The pilot was completed before the full dataset stage. It is a gate report,
 not a frozen evaluation package.
+
+Final pilot rerun with the accepted sampling fix also passed 339 of 339
+validation checks and the independent audit with zero failures.
